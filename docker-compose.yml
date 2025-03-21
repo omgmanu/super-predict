@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: superseed-client
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - superseed-network
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: superseed-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - superseed-network
+
+networks:
+  superseed-network:
+    driver: bridge 

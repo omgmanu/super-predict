@@ -1,0 +1,14 @@
+node_modules
+dist
+.nx/cache
+tmp
+coverage
+.git
+.github
+.vscode
+.idea
+*.md
+*.log
+.env
+.env.*
+!.env.production 
