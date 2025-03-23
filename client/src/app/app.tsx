@@ -1,23 +1,31 @@
-// Uncomment this line to use CSS modules
-// import styles from './app.module.css';
-import { Route, Routes } from 'react-router-dom';
-import TodoList from './todo-list';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
+import { Leaderboard } from './leaderboard';
+import { Play } from './play';
+import { About } from './about';
+import { Components } from './components';
+import { Home } from './home';
 import './app.module.css';
 
 export function App() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      <header className="bg-white shadow">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Superseed Project</h1>
-        </div>
-      </header>
-      <main className="container mx-auto px-4 py-8">
-        <Routes>
-          <Route path="/" element={<TodoList />} />
-        </Routes>
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-bg text-text flex flex-col">
+        <Navbar />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/play" element={<Play />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/components" element={<Components />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </BrowserRouter>
   );
 }
 

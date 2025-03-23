@@ -44,9 +44,8 @@ The API will be available at http://localhost:3000
 - **UI**: Modern UI with Tailwind CSS and ShadCN UI components
 - **Routing**: React Router for frontend routing
 
-## Available API Endpoints
+## This project is mainly built with Cursor. Develoment steps are:
 
-- `GET /api/todos` - List all todos
-- `GET /api/todos/:id` - Get a specific todo
-- `GET /api/users` - List all users
-- `GET /api/users/:id` - Get a specific user 
+- **Init project**: Nx monorepo with 2 services: client (React) and api (Hono)
+- **Setup client**: Tailwind 3 with Shadcn and basic components
+- **Setup api**: WIP
