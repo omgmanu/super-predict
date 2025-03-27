@@ -42,7 +42,7 @@ export function Home() {
           {/* hide on mobile */}
           <div className="hidden md:flex items-center justify-center ">
             <img
-              src="/app-logo-short.svg"
+              src="/app-logo-short-v2.svg"
               alt="Superseed"
               className="h-[350px] w-[300px]"
             />

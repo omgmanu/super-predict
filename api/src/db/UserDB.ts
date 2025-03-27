@@ -7,6 +7,8 @@ export interface User {
   profileImageUrl: string;
   points: number;
   coins: number; // User's coin balance
+  gamesPlayed: number;
+  gamesWon: number;
   // Additional properties from XUser will be included here
 }
 
@@ -128,5 +130,31 @@ export class UserDB {
     user.coins -= coinsToDeduct;
     await this.saveUser(user);
     return true;
+  }
+
+  /**
+   * Get users ordered by points (for leaderboard)
+   * This method returns the top users by points
+   */
+  public static async getLeaderboard(limit = 100): Promise<User[]> {
+    const redis = this.getRedisClient();
+    const pattern = `${USER_PREFIX}:*`;
+    
+    const keys = await redis.keys(pattern);
+    
+    if (keys.length === 0) {
+      return [];
+    }
+    
+    const usersData = await redis.mget(...keys);
+    
+    const users = usersData
+      .filter((data): data is string => data !== null)
+      .map(data => JSON.parse(data) as User);
+    
+    // Sort users by points in descending order and take the top 'limit'
+    return users
+      .sort((a, b) => b.points - a.points)
+      .slice(0, limit);
   }
 } 

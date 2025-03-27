@@ -28,7 +28,9 @@ export class AuthService {
       username: xUser.username,
       profileImageUrl: xUser.profile_image_url,
       points: 0,
-      coins: 100 // Start with 100 coins
+      coins: 100, // Start with 100 coins
+      gamesPlayed: 0,
+      gamesWon: 0
     };
     
     await UserDB.saveUser(newUser);

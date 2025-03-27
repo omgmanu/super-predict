@@ -18,7 +18,10 @@ const game = new Hono();
  * @param gameId The ID of the game to complete
  * @param userId The ID of the user who owns the game
  */
-async function completeGame(gameId: string, userId: string): Promise<void> {
+async function completeGame(gameId: string, userId: string, endTime?: number): Promise<void> {
+  // Get ETH price after 60 seconds
+  const endTimestamp = endTime ? endTime : Math.floor(Date.now() / 1000);
+
   try {
     // Fetch the current game state
     const currentGame = await GameDB.getGame(gameId, userId);
@@ -28,8 +31,6 @@ async function completeGame(gameId: string, userId: string): Promise<void> {
       return;
     }
     
-    // Get ETH price after 60 seconds
-    const endTimestamp = Math.floor(Date.now() / 1000);
     let priceAtEnd: number;
     
     try {
@@ -37,11 +38,11 @@ async function completeGame(gameId: string, userId: string): Promise<void> {
     } catch (error) {
       console.error(`Error fetching ETH price for game ${gameId}:`, error);
       // If we can't get the end price, we can't determine the result
-      // Let's retry in 30 seconds
+      // Let's retry in 10 seconds
       setTimeout(() => {
         console.log(`Retrying to fetch price for game ${gameId} after failure`);
-        completeGame(gameId, userId);
-      }, 30 * 1000);
+        completeGame(gameId, userId, endTimestamp);
+      }, 10 * 1000);
       return;
     }
     
@@ -86,6 +87,21 @@ async function completeGame(gameId: string, userId: string): Promise<void> {
     
     // Add points to user
     await UserDB.addPoints(userId, pointsWon);
+    
+    // Get user to update game stats
+    const user = await UserDB.getUser(userId);
+    if (user) {
+      // Update games played and won counters
+      const gamesPlayed = (user.gamesPlayed || 0) + 1;
+      const gamesWon = result === 'win' ? (user.gamesWon || 0) + 1 : (user.gamesWon || 0);
+      
+      // Update user with new stats
+      await UserDB.saveUser({
+        ...user,
+        gamesPlayed,
+        gamesWon
+      });
+    }
     
     console.log(`Game ${gameId} completed with result: ${result}, points won: ${pointsWon}`);
   } catch (error) {

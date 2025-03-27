@@ -35,9 +35,9 @@ export function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img
-              src="/app-logo.svg"
+              src="/app-logo-v3.svg"
               alt="Superseed"
-              className="h-[47px] w-[137px]"
+              className="h-[50px] w-[140px]"
             />
           </Link>
 

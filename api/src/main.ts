@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import gamesRoutes from './routes/games';
 import coinsRoutes from './routes/coins';
 import gameRoutes from './routes/game';
+import leaderboardRoutes from './routes/leaderboard';
 import { env } from './utils/env';
 import { session } from './utils/session';
 
@@ -39,6 +40,7 @@ api.route('/auth', authRoutes);
 api.route('/games', gamesRoutes);
 api.route('/coins', coinsRoutes);
 api.route('/game', gameRoutes);
+api.route('/leaderboard', leaderboardRoutes);
 
 app.route('/api', api);
 
