@@ -1,98 +1,81 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { cors } from 'hono/cors';
-import { ApiResponse, Todo, User } from '@superseed/shared';
+import { AppService } from './services/AppService';
+import authRoutes from './routes/auth';
+import gamesRoutes from './routes/games';
+import coinsRoutes from './routes/coins';
+import gameRoutes from './routes/game';
+import { env } from './utils/env';
+import { session } from './utils/session';
 
-const host = process.env.HOST ?? 'localhost';
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-
-// Sample data
-const users: User[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const todos: Todo[] = [
-  {
-    id: '1',
-    title: 'Learn Hono',
-    completed: false,
-    createdAt: new Date().toISOString(),
-    userId: '1',
-  },
-  {
-    id: '2',
-    title: 'Build an awesome app',
-    completed: false,
-    createdAt: new Date().toISOString(),
-    userId: '1',
-  },
-];
-
+// Create app instance
 const app = new Hono();
 
-// Middleware
-app.use('/*', cors());
+// CORS configuration for the client
+app.use(
+  '/*',
+  cors({
+    origin: env.CLIENT_URL,
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
+    maxAge: 600,
+  })
+);
+
+// Apply session middleware to all routes
+app.use('/*', session);
 
 // Root endpoint
 app.get('/', (c) => {
-  return c.json({ message: 'Welcome to Superseed API' });
-});
-
-// API routes
-const api = new Hono();
-
-// GET /todos - List all todos
-api.get('/todos', (c) => {
-  const response: ApiResponse<Todo[]> = {
-    success: true,
-    data: todos,
-  };
-  return c.json(response);
-});
-
-// GET /todos/:id - Get a specific todo
-api.get('/todos/:id', (c) => {
-  const id = c.req.param('id');
-  const todo = todos.find((t) => t.id === id);
-  
-  if (!todo) {
-    return c.json({ success: false, error: 'Todo not found' }, 404);
-  }
-  
-  return c.json({ success: true, data: todo });
-});
-
-// GET /users - List all users
-api.get('/users', (c) => {
-  const response: ApiResponse<User[]> = {
-    success: true,
-    data: users,
-  };
-  return c.json(response);
-});
-
-// GET /users/:id - Get a specific user
-api.get('/users/:id', (c) => {
-  const id = c.req.param('id');
-  const user = users.find((u) => u.id === id);
-  
-  if (!user) {
-    return c.json({ success: false, error: 'User not found' }, 404);
-  }
-  
-  return c.json({ success: true, data: user });
+  return c.json({ message: 'Welcome to Super Predict API' });
 });
 
 // Mount API routes
+const api = new Hono();
+api.route('/auth', authRoutes);
+api.route('/games', gamesRoutes);
+api.route('/coins', coinsRoutes);
+api.route('/game', gameRoutes);
+
 app.route('/api', api);
 
-console.log(`Starting server on http://${host}:${port}`);
-serve({
-  fetch: app.fetch,
-  port,
-});
+// Initialize the app
+const init = async () => {
+  try {
+    // Initialize AppService (connects to Redis)
+    await AppService.getInstance().init();
+
+    // Start the server
+    console.log(`Starting server on http://${env.HOST}:${env.PORT}`);
+    serve({
+      fetch: app.fetch,
+      port: env.PORT,
+      hostname: env.HOST,
+    });
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    process.exit(1);
+  }
+};
+
+// Handle shutdown
+const shutdown = async () => {
+  try {
+    await AppService.getInstance().cleanup();
+    console.log('Application shutdown gracefully');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+    process.exit(1);
+  }
+};
+
+// Handle process termination signals
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+// Start the application
+init();

@@ -10,6 +10,8 @@ export default defineConfig(() => ({
   server: {
     port: 4200,
     host: 'localhost',
+    // TODO: for local usage - remove this!!
+    allowedHosts: ['client-qntr.manu.win'],
   },
   preview: {
     port: 4300,

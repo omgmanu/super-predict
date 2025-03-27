@@ -16,14 +16,3 @@ export interface User {
   email: string;
   createdAt: string;
 }
-
-/**
- * Todo item shared between frontend and backend
- */
-export interface Todo {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: string;
-  userId: string;
-} 

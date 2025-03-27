@@ -2,15 +2,30 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, Coins, Trophy } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
+import { useUserContext } from '../context/UserContext';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Badge } from './ui/badge';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, loading, login, logout } = useUserContext();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Handle login with X
+  const handleLogin = () => {
+    login();
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
   };
 
   return (
@@ -48,11 +63,42 @@ export function Navbar() {
             </Link>
           </nav>
 
-          {/* Connect with X Button (Desktop) */}
+          {/* Auth Button (Desktop) */}
           <div className="hidden md:block">
-            <Button className="flex items-center" variant="default">
-              Connect with <span className="font-bold text-lg">𝕏</span>
-            </Button>
+            {loading ? (
+              <Button disabled variant="default">
+                Loading...
+              </Button>
+            ) : user ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.profileImageUrl} alt={user.username} />
+                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{user.username}</span>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Badge variant="default" className="flex items-center gap-1">
+                        <Trophy className="h-3 w-3" />
+                        {user.points}
+                      </Badge>
+                      <Badge variant="default" className="flex items-center gap-1">
+                        <Coins className="h-3 w-3" />
+                        {user.coins}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={handleLogout} variant="neutral">
+                  <LogOut className="h-4 w-4 mr-2" /> Logout
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={handleLogin} className="flex items-center" variant="default">
+                Connect with <span className="font-bold text-lg ml-1">𝕏</span>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -96,13 +142,44 @@ export function Navbar() {
             >
               About
             </Link>
-            <Button
-              className="flex items-center justify-center"
-              variant="default"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Connect with <span className="font-bold text-lg">𝕏</span>
-            </Button>
+            
+            {/* Auth in Mobile Menu */}
+            {loading ? (
+              <Button disabled variant="default">
+                Loading...
+              </Button>
+            ) : user ? (
+              <div className="space-y-4">
+                <div className="flex flex-col items-center gap-2 bg-bw p-3 rounded-md border-2 border-border shadow-shadow">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.profileImageUrl} alt={user.username} />
+                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">{user.username}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="default" className="flex items-center gap-1">
+                      <Trophy className="h-3 w-3" />
+                      {user.points}
+                    </Badge>
+                    <Badge variant="default" className="flex items-center gap-1">
+                      <Coins className="h-3 w-3" />
+                      {user.coins}
+                    </Badge>
+                  </div>
+                </div>
+                <Button onClick={handleLogout} variant="neutral" className="w-full">
+                  <LogOut className="h-4 w-4 mr-2" /> Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handleLogin}
+                className="flex items-center justify-center"
+                variant="default"
+              >
+                Connect with <span className="font-bold text-lg ml-1">𝕏</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
