@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { HandCoins, Repeat, Twitter, Wallet } from 'lucide-react';
 
 export function About() {
   const navigate = useNavigate();
@@ -21,26 +22,26 @@ export function About() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        <Card className="border-2 border-border shadow-shadow">
+        <Card className="border-2 border-border shadow-shadow bg-slate-50">
           <CardHeader className="bg-main border-b-2 border-border">
-            <CardTitle className="font-heading text-2xl">Our Project</CardTitle>
+            <CardTitle className="font-heading text-2xl">Details</CardTitle>
           </CardHeader>
           <CardContent className="p-6 bg-slate-50">
-            <p className="mb-4">
+            <p className="mb-6">
               Super Predict is a project built for Superseed blockchain's
               competition with a prize pool of $34,750. The contest challenged
               developers to create an engaging game around Superseed's values
               and identity using AI.
             </p>
-            <p className="mb-4">
+            <p className="mb-6">
               We've created a web app where users engage in a gamified
               experience with time cooldown mechanics, earn points by predicting
               ETH price movements, climb the leaderboard, and ultimately share
               in the SUPR prize pool.
             </p>
-            <p>
-              The $34,750 prize pool will be used to buy SUPR tokens over the
-              first 2 weeks of launch, which will then be distributed to top
+            <p className="mb-6">
+              A big amount of prize pool will be used to buy SUPR tokens over
+              the first 5 weeks of launch, which will then be distributed to top
               leaderboard players in multiple phases.
             </p>
           </CardContent>
@@ -52,7 +53,7 @@ export function About() {
               Key Features
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 bg-slate-50 pb-14">
+          <CardContent className="p-6 bg-slate-50 pb-8">
             <ul className="space-y-4">
               <li className="flex items-start">
                 <div className="mr-4 mt-1 bg-main rounded-full p-1">
@@ -141,10 +142,34 @@ export function About() {
                   </svg>
                 </div>
                 <div>
+                  <strong className="font-medium">Game Boosts</strong>
+                  <p className="text-sm text-muted-foreground">
+                    Unlock special features and earn more points with various
+                    game boosts
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <div className="mr-4 mt-1 bg-main rounded-full p-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div>
                   <strong className="font-medium">SUPR Prize Pool</strong>
                   <p className="text-sm text-muted-foreground">
-                    Top leaderboard users will share in the $34,750 SUPR prize
-                    pool
+                    Top leaderboard users will share in the $25000 (in SUPR
+                    tokens) prize pool
                   </p>
                 </div>
               </li>
@@ -206,6 +231,134 @@ export function About() {
         </CardContent>
       </Card>
 
+      {/* Game Boosts Section */}
+      <Card className="border-2 border-border shadow-shadow mb-16">
+        <CardHeader className="bg-main border-b-2 border-border">
+          <CardTitle className="font-heading text-2xl">Game Boosts</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 bg-slate-50">
+          <p className="mb-6">
+            Enhance your gameplay experience with various boosts that help you
+            earn more points and coins. Spend your earned points to unlock
+            powerful features!
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div>
+              <h3 className="font-heading text-xl mb-4 flex items-center">
+                <HandCoins className="h-5 w-5 mr-2" />
+                Super Distributor
+              </h3>
+              <p className="mb-4">
+                Distribute coins to all players and help the community while
+                earning points yourself. Available in three levels with improved
+                capabilities:
+              </p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>
+                  <strong>Level 1:</strong> Distribute 100 coins to all players
+                  every 12 hours
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Cost: 4,000 points)
+                  </span>
+                </li>
+                <li>
+                  <strong>Level 2:</strong> Distribute 200 coins to all players
+                  every 10 hours
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Cost: 10,000 points)
+                  </span>
+                </li>
+                <li>
+                  <strong>Level 3:</strong> Distribute 300 coins to all players
+                  every 8 hours
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Cost: 25,000 points)
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-heading text-xl mb-4 flex items-center">
+                <Repeat className="h-5 w-5 mr-2" />
+                Super Automator
+              </h3>
+              <p className="mb-4">
+                Let the automator play games for you automatically. The bot will
+                make random predictions using 100 coins per game. Available in
+                three levels:
+              </p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>
+                  <strong>Level 1:</strong> Auto play every 190 minutes
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Cost: 5,000 points)
+                  </span>
+                </li>
+                <li>
+                  <strong>Level 2:</strong> Auto play every 130 minutes
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Cost: 14,000 points)
+                  </span>
+                </li>
+                <li>
+                  <strong>Level 3:</strong> Auto play every 70 minutes
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Cost: 34,000 points)
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-2">
+              <h3 className="font-heading text-xl mb-4 flex items-center">
+                <Twitter className="h-5 w-5 mr-2" />
+                Action Boosts
+              </h3>
+              <p className="mb-4">
+                Complete one-time actions to earn instant point rewards:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    <strong>Follow Superseed on X:</strong> Earn 500 points
+                  </li>
+                  <li>
+                    <strong>RT Post of Game Submission:</strong> Earn 800 points
+                  </li>
+                </ul>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    <strong>Genesis Seeders - Connect Wallet:</strong> To be
+                    announced
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Coming Soon)
+                    </span>
+                  </li>
+                  <li>
+                    <strong>Superseed Points System - Connect Wallet:</strong>{' '}
+                    To be announced
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Coming Soon)
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              onClick={() => navigate('/play')}
+              className="px-6 py-3 bg-main text-text border-2 border-border shadow-shadow rounded flex items-center justify-center hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none font-bold"
+            >
+              Explore Game Boosts
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-2 border-border shadow-shadow mb-16">
         <CardHeader className="bg-main border-b-2 border-border">
           <CardTitle className="font-heading text-2xl">
@@ -217,9 +370,8 @@ export function About() {
             <div>
               <h3 className="font-heading text-xl mb-4">Prize Pool</h3>
               <p className="mb-2">
-                The total prize pool is worth $34,750 and will be used to buy
-                SUPR tokens over the first 2 weeks of launch (or date of
-                receiving).
+                A big chunk of prize pool ($25000) will be used used to buy SUPR
+                tokens over the first 5 weeks of launch (or date of receiving).
               </p>
               <p>
                 These SUPR tokens will be distributed to top leaderboard players
@@ -237,8 +389,7 @@ export function About() {
               </p>
               <ul className="list-disc pl-5 space-y-2">
                 <li>
-                  Connect your wallet to receive a 10% points bonus for every
-                  game won
+                  Connect your wallet to receive a generous amount of points
                 </li>
                 <li>
                   Benefit from Superseed's points system to increase your
@@ -251,21 +402,12 @@ export function About() {
       </Card>
 
       <div className="text-center">
-        <h2 className="text-2xl font-heading mb-4">
-          Ready to Start Predicting?
-        </h2>
-        <p className="max-w-md mx-auto mb-6">
-          Connect your X account, make your predictions, and start earning
-          points today!
-        </p>
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={() => navigate('/play')}
-            className="px-6 py-3 bg-main text-text border-2 border-border shadow-shadow rounded flex items-center justify-center w-fit hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none text-lg font-bold mx-auto"
-          >
-            Play now
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('/play')}
+          className="px-6 py-3 bg-main text-text border-2 border-border shadow-shadow rounded flex items-center justify-center hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none text-lg font-bold mx-auto"
+        >
+          Start playing now
+        </button>
       </div>
     </div>
   );

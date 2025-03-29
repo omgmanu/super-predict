@@ -1,12 +1,24 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
+export interface GameBoost {
+  id: string;
+  type: 'superDistributor' | 'superAutomator' | 'followX' | 'rtPost' | 'connectGenesis' | 'connectSuperseed';
+  level?: 1 | 2 | 3;
+  unlocked: boolean;
+  lastUsed?: number; // timestamp when last used (for cooldown)
+  usageCount?: number; // number of times the boost has been used
+}
+
 export interface User {
   id: string;
   username: string;
   profileImageUrl: string;
   points: number;
   coins: number;
+  gamesPlayed?: number;
+  gamesWon?: number;
+  boosts?: GameBoost[];
 }
 
 interface UserContextType {
@@ -16,6 +28,8 @@ interface UserContextType {
   login: () => void;
   logout: () => void;
   fetchUser: () => Promise<void>;
+  buyBoost: (boostType: string, level: number) => Promise<{success: boolean; error?: string}>;
+  useBoost: (boostType: string, level?: number) => Promise<{success: boolean; error?: string}>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -23,6 +37,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // API URLs
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const AUTH_URL = `${API_URL}/auth`;
+const BOOST_URL = `${API_URL}/boosts`;
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -80,13 +95,61 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Buy a boost
+  const buyBoost = async (boostType: string, level: number): Promise<{success: boolean; error?: string}> => {
+    try {
+      const response = await axios.post(`${BOOST_URL}/buy`, {
+        type: boostType,
+        level
+      }, { withCredentials: true });
+      
+      if (response.data.success) {
+        await fetchUser(); // Refresh user data
+        return { success: true };
+      }
+      return { success: false, error: response.data.error || 'Failed to buy boost' };
+    } catch (err) {
+      console.error('Error buying boost:', err);
+      let errorMsg = 'An unknown error occurred';
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
+        errorMsg = err.response.data.error;
+      }
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Use a boost
+  const useBoost = async (boostType: string, level?: number): Promise<{success: boolean; error?: string}> => {
+    try {
+      const response = await axios.post(`${BOOST_URL}/use`, {
+        type: boostType,
+        level
+      }, { withCredentials: true });
+      
+      if (response.data.success) {
+        await fetchUser(); // Refresh user data
+        return { success: true };
+      }
+      return { success: false, error: response.data.error || 'Failed to use boost' };
+    } catch (err) {
+      console.error('Error using boost:', err);
+      let errorMsg = 'An unknown error occurred';
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
+        errorMsg = err.response.data.error;
+      }
+      return { success: false, error: errorMsg };
+    }
+  };
+
   const value = {
     user,
     loading,
     error,
     login,
     logout,
-    fetchUser
+    fetchUser,
+    buyBoost,
+    useBoost
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

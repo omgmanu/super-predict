@@ -14,6 +14,7 @@ import { Button } from '../../../components/ui/button';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { ArrowBigUp, ArrowBigDown, Clock, Trophy, X } from 'lucide-react';
 import { formatNumber } from '../../../lib/utils';
+import { FactsCarousel } from '../../../components/FactsCarousel';
 
 // API URL
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -388,7 +389,7 @@ function PendingGameState({
           <div className="flex justify-between items-center">
             <CardTitle>Prediction Game</CardTitle>
             <Badge 
-              className="text-sm py-1" 
+              className="text-sm py-1 text-black" 
               variant={game.prediction === 'long' ? 'success' : 'destructive'}
             >
               {game.prediction === 'long' ? 'Long Position' : 'Short Position'}
@@ -452,8 +453,8 @@ function PendingGameState({
                 {currentPrice !== null && (
                   <div className="mt-2 flex justify-center">
                     <Badge 
-                      variant={currentResult === 'win' ? 'success' : 'destructive'}
-                      className="text-xs"
+                      // variant={currentResult === 'win' ? 'success' : 'destructive'}
+                      className={`text-xs ${currentResult === 'win' ? 'bg-green-300' : 'bg-red-300'}`}
                     >
                       {currentResult === 'win' ? 'Currently Winning' : 'Currently Losing'}
                     </Badge>
@@ -483,10 +484,17 @@ function PendingGameState({
                 </div>
               </div>
             </div>
+
+            <div className="border-t border-border my-4"></div>
             
-            <Button variant="outline" className="w-full" onClick={() => navigate('/leaderboard')}>
-              View Leaderboard
-            </Button>
+            {/* Superseed Facts Carousel */}
+            <div className="mt-4 bg-muted p-4 rounded-lg">
+              <h3 className="text-sm font-medium flex items-center">
+                <span className="bg-main text-mtext px-2 py-1 rounded mr-2 text-xs">Superseed Fact</span>
+                Did you know?
+              </h3>
+              <FactsCarousel />
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -35,7 +35,8 @@ leaderboard.get('/', async (c) => {
         profileImageUrl: user.profileImageUrl,
         points: user.points,
         gamesPlayed: user.gamesPlayed || 0,
-        winRate
+        winRate,
+        boosts: user.boosts || []
       };
     });
     

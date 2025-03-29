@@ -104,4 +104,38 @@ games.get('/:id', async (c) => {
   }
 });
 
+// Get recent winning games
+games.get('/recent/wins', async (c) => {
+  try {
+    // This is a public endpoint, no auth required
+    const limitParam = c.req.query('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : 10;
+    
+    if (isNaN(limit) || limit <= 0) {
+      return c.json({ 
+        success: false, 
+        error: 'Limit must be a positive number' 
+      }, 400);
+    }
+    
+    const recentGames = await GameDB.getRecentWinningGames(limit);
+    
+    // For each game, fetch the username
+    const gamesWithUsernames = await Promise.all(
+      recentGames.map(async (game) => {
+        const user = await UserDB.getUser(game.userId);
+        return {
+          ...game,
+          username: user ? user.username : 'Unknown'
+        };
+      })
+    );
+    
+    return c.json({ success: true, data: gamesWithUsernames });
+  } catch (error) {
+    console.error('Error fetching recent games:', error);
+    return c.json({ success: false, error: 'Failed to fetch recent games' }, 500);
+  }
+});
+
 export default games; 

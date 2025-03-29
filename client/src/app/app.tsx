@@ -10,6 +10,7 @@ import { Components } from './components';
 import { Home } from './home';
 import { AuthCallback } from './auth-callback';
 import GamePage from './game/[id]/page';
+import { Toaster } from '../components/ui/toast/toaster';
 import './app.module.css';
 
 export function App() {
@@ -30,6 +31,7 @@ export function App() {
             </Routes>
           </main>
           <Footer />
+          <Toaster />
         </div>
       </UserProvider>
     </BrowserRouter>

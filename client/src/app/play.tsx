@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import GameCreation from './play/game';
 import { useUserContext } from '../context/UserContext';
 import { Button } from '../components/ui/button';
+import GameBoosts from '../components/GameBoosts';
 import {
   Card,
   CardContent,
@@ -149,20 +150,20 @@ export function Play() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div>
           <GameCreation />
         </div>
         
         <div>
-          <Card className="w-full bg-slate-50">
+          <Card className="w-full bg-slate-50 h-full flex flex-col">
             <CardHeader>
               <CardTitle>Your Recent Games</CardTitle>
               <CardDescription>
                 Last 20 games you've played
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-grow overflow-auto" style={{ maxHeight: "450px" }}>
               {loadingGames ? (
                 <div className="space-y-2">
                   {[...Array(3)].map((_, i) => (
@@ -251,6 +252,11 @@ export function Play() {
             </CardContent>
           </Card>
         </div>
+      </div>
+      
+      {/* Game Boosts Component - Centered below both cards */}
+      <div className="max-w-4xl mx-auto">
+        <GameBoosts />
       </div>
     </div>
   );

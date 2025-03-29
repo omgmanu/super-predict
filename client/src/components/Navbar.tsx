@@ -72,12 +72,12 @@ export function Navbar() {
             ) : user ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-10 w-10">
                     <AvatarImage src={user.profileImageUrl} alt={user.username} />
                     <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-medium">{user.username}</span>
+                    <span className="font-bold">{user.username}</span>
                     <div className="flex items-center gap-2 text-sm">
                       <Badge variant="default" className="flex items-center gap-1">
                         <Trophy className="h-3 w-3" />

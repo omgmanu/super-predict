@@ -7,6 +7,9 @@ import gamesRoutes from './routes/games';
 import coinsRoutes from './routes/coins';
 import gameRoutes from './routes/game';
 import leaderboardRoutes from './routes/leaderboard';
+import boostsRoutes from './routes/boosts';
+import automatorRoutes from './routes/automator';
+import adminRoutes from './routes/admin';
 import { env } from './utils/env';
 import { session } from './utils/session';
 
@@ -41,6 +44,9 @@ api.route('/games', gamesRoutes);
 api.route('/coins', coinsRoutes);
 api.route('/game', gameRoutes);
 api.route('/leaderboard', leaderboardRoutes);
+api.route('/boosts', boostsRoutes);
+api.route('/automator', automatorRoutes);
+api.route('/admin', adminRoutes);
 
 app.route('/api', api);
 

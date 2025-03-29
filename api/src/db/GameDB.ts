@@ -139,4 +139,31 @@ export class GameDB {
     
     return JSON.parse(gameData) as Game;
   }
+
+  /**
+   * Get recent completed games with 'win' result
+   * Returns the most recently completed games
+   */
+  public static async getRecentWinningGames(limit = 10): Promise<Game[]> {
+    const redis = this.getRedisClient();
+    const pattern = `${GAME_PREFIX}:*:*:settled`;
+    
+    const keys = await redis.keys(pattern);
+    
+    if (keys.length === 0) {
+      return [];
+    }
+    
+    const gamesData = await redis.mget(...keys);
+    
+    const games = gamesData
+      .filter((data): data is string => data !== null)
+      .map(data => JSON.parse(data) as Game)
+      .filter(game => game.result === 'win');
+    
+    // Sort games by endTime in descending order (most recent first) and take the top 'limit'
+    return games
+      .sort((a, b) => (b.endTime || 0) - (a.endTime || 0))
+      .slice(0, limit);
+  }
 } 

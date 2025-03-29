@@ -11,6 +11,14 @@ import {
 import { useUserContext } from '../context/UserContext';
 import { Skeleton } from '../components/ui/skeleton';
 import axios from 'axios';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../components/ui/tooltip';
+import { GameBoost } from '../context/UserContext';
+import { CheckCircle } from 'lucide-react';
 
 interface LeaderboardUser {
   rank: number;
@@ -20,7 +28,48 @@ interface LeaderboardUser {
   points: number;
   gamesPlayed: number;
   winRate: string;
+  boosts?: GameBoost[];
 }
+
+// Component to display boost details in the tooltip
+const BoostDetails = ({ boosts }: { boosts?: GameBoost[] }) => {
+  if (!boosts || boosts.length === 0) {
+    return <div className="text-sm">No boosts unlocked</div>;
+  }
+
+  // Function to get friendly boost name
+  const getBoostName = (boostType: string): string => {
+    const boostNames: Record<string, string> = {
+      superDistributor: "Super Distributor",
+      superAutomator: "Super Automator",
+      followX: "Follow Superseed on X",
+      rtPost: "RT Post of Game Submission",
+      connectGenesis: "Genesis Seeders - Connect Wallet",
+      connectSuperseed: "Superseed Points System - Connect Wallet"
+    };
+
+    return boostNames[boostType] || boostType;
+  };
+
+  return (
+    <div className="space-y-2 max-w-xs p-4 rounded-lg">
+      <h4 className="font-medium text-sm text-left">Unlocked Boosts:</h4>
+      <ul className="space-y-1 text-sm">
+        {boosts.map((boost) => (
+          <li key={boost.id} className="flex items-center gap-1">
+            <CheckCircle className="h-3 w-3 text-green-500" />
+            <span>
+              {getBoostName(boost.type)}
+              {boost.level ? ` (Level ${boost.level})` : ''}
+              {boost.type === 'superDistributor' && boost.usageCount !== undefined && 
+                ` - Used ${boost.usageCount} time${boost.usageCount !== 1 ? 's' : ''}`}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 export function Leaderboard() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
@@ -92,6 +141,9 @@ export function Leaderboard() {
               <TableHead className="font-heading text-right">
                 Win Rate
               </TableHead>
+              <TableHead className="font-heading text-right">
+                Boosts
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -114,9 +166,21 @@ export function Leaderboard() {
                   </TableCell>
                   <TableCell className="text-right">{currentUserRank.gamesPlayed}</TableCell>
                   <TableCell className="text-right">{currentUserRank.winRate}</TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="hover:bold underline cursor-help">
+                          {currentUserRank.boosts?.filter(b => b.unlocked).length || 0}
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <BoostDetails boosts={currentUserRank.boosts?.filter(b => b.unlocked)} />
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
                 </TableRow>
                 <TableRow className="border-b border-border">
-                  <TableCell colSpan={5} className="text-center py-1 text-gray-500 text-sm italic">
+                  <TableCell colSpan={6} className="text-center py-1 text-gray-500 text-sm italic">
                     ...
                   </TableCell>
                 </TableRow>
@@ -146,6 +210,18 @@ export function Leaderboard() {
                 </TableCell>
                 <TableCell className="text-right">{player.gamesPlayed}</TableCell>
                 <TableCell className="text-right">{player.winRate}</TableCell>
+                <TableCell className="text-right">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="hover:bold underline cursor-help">
+                        {player.boosts?.filter(b => b.unlocked).length || 0}
+                      </TooltipTrigger>
+                      <TooltipContent side="left">
+                        <BoostDetails boosts={player.boosts?.filter(b => b.unlocked)} />
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -169,6 +245,9 @@ function LeaderboardSkeleton() {
           <TableHead className="font-heading text-right">
             Win Rate
           </TableHead>
+          <TableHead className="font-heading text-right">
+            Boosts
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -189,6 +268,9 @@ function LeaderboardSkeleton() {
             </TableCell>
             <TableCell className="text-right">
               <Skeleton className="h-4 w-12 ml-auto" />
+            </TableCell>
+            <TableCell className="text-right">
+              <Skeleton className="h-4 w-8 ml-auto" />
             </TableCell>
           </TableRow>
         ))}
