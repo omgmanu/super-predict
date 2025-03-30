@@ -6,8 +6,8 @@ import { UserProvider } from '../context/UserContext';
 import { Leaderboard } from './leaderboard';
 import { Play } from './play';
 import { About } from './about';
-import { Components } from './components';
 import { Home } from './home';
+import Prompts from './prompts';
 import { AuthCallback } from './auth-callback';
 import GamePage from './game/[id]/page';
 import { Toaster } from '../components/ui/toast/toaster';
@@ -26,7 +26,7 @@ export function App() {
               <Route path="/play" element={<Play />} />
               <Route path="/game/:id" element={<GamePage />} />
               <Route path="/about" element={<About />} />
-              <Route path="/components" element={<Components />} />
+              <Route path="/prompts" element={<Prompts />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
             </Routes>
           </main>
