@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     ports:
       - ${PORT}:${PORT_API}
-    command: node main.js
+    command: node dist/api/main.js
     environment:
       - NODE_ENV=production
       - PORT=${PORT_API}
@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     ports:
       - ${PORT}:${PORT_CLIENT}
-    command: npx serve
+    command: serve -s dist/client
     environment:
       - NODE_ENV=production
       - PORT=${PORT_CLIENT}

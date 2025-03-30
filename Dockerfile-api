@@ -8,8 +8,14 @@ FROM base AS builder
 RUN apk add --no-cache gcompat python3 make g++ linux-headers eudev-dev
 WORKDIR /app
 
-COPY dist/api .
+COPY . .
+
 RUN npm install
+
+RUN npx nx run api:build
+
+# COPY dist/api .
+
 # RUN npm run build
 
 # COPY api/package*.json api/tsconfig.json ./
