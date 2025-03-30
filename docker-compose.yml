@@ -7,10 +7,12 @@ services:
       context: .
       dockerfile: Dockerfile-api
     restart: unless-stopped
+    ports:
+      - ${PORT}:${PORT_API}
+    command: node main.js
     environment:
       - NODE_ENV=production
       - PORT=${PORT_API}
-      - HOST=0.0.0.0
       - REDIS_URL=${REDIS_URL}
       - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID}
       - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET}
@@ -18,20 +20,6 @@ services:
       - SESSION_ENCRYPTION_KEY=${SESSION_ENCRYPTION_KEY}
       - CLIENT_URL=${CLIENT_URL}
       - CRON_AUTH_KEY=${CRON_AUTH_KEY}
-    command: >
-      sh -c "ls -la /app/dist && 
-             if [ -f /app/dist/main.js ]; then 
-               node /app/dist/main.js; 
-             elif [ -f /app/dist/api/main.js ]; then 
-               node /app/dist/api/main.js; 
-             elif [ -f /app/dist/index.js ]; then 
-               node /app/dist/index.js; 
-             else 
-               echo 'No entry point found' && 
-               sleep 3600; 
-             fi"
-    networks:
-      - superseed-network
 
   client:
     container_name: superpredict-client
@@ -39,16 +27,12 @@ services:
       context: .
       dockerfile: Dockerfile-client
     restart: unless-stopped
+    ports:
+      - ${PORT}:${PORT_CLIENT}
+    command: npx serve
     environment:
       - NODE_ENV=production
       - PORT=${PORT_CLIENT}
       - VITE_API_URL=${VITE_API_URL}
-    command: serve -s dist
-    networks:
-      - superseed-network
     depends_on:
       - api
-
-networks:
-  superseed-network:
-    driver: bridge

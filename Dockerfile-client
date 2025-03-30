@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:20-alpine as builder
+FROM node:20-alpine as build
 
 # Install Python and build dependencies
 RUN apk add --no-cache python3 make g++ linux-headers eudev-dev
@@ -7,43 +7,35 @@ RUN apk add --no-cache python3 make g++ linux-headers eudev-dev
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the entire project for build
-COPY . .
+RUN npm i -g serve
 
-# Install dependencies with platform-friendly options
-ENV NODE_ENV=production
-RUN npm ci
+COPY dist/client .
+# RUN npm install
 
-# Build directly with Vite in the client directory
-RUN cd client && \
-    npm install vite && \
-    npx vite build || echo "Build may have failed, continuing anyway"
+# # Copy package.json and package-lock.json to the working directory
+# COPY package*.json ./
 
-# Make sure the output directory exists
-RUN mkdir -p /app/dist-output && \
-    if [ -d "/app/client/dist" ]; then \
-      cp -r /app/client/dist/* /app/dist-output/; \
-    elif [ -d "/app/dist/client" ]; then \
-      cp -r /app/dist/client/* /app/dist-output/; \
-    else \
-      echo "WARNING: No dist directory found, creating empty one"; \
-      mkdir -p /app/dist-output; \
-      echo "<html><body>Build failed</body></html>" > /app/dist-output/index.html; \
-    fi
+# # Install app dependencies
+# RUN npm install
 
-# Final production image
-FROM node:20-alpine as runner
+# # Install serve globally - a static file serving utility
+# RUN npm i -g serve
 
-WORKDIR /app
+# # Copy the rest of your application code to the working directory
+# COPY client/ .
 
-# Install serve to host the SPA
-RUN npm install -g serve
+# # Build the Vite app for production
+# RUN npm run build-client
 
-# Copy the build output from the builder stage
-COPY --from=builder /app/dist-output /app/dist
+# # Set the working directory in the new image
+# WORKDIR /app
+
+# # Copy the build output from the previous stage
+# # COPY --from=build /app/dist ./dist
+# COPY client/ .
 
 # Expose the port the app runs on
 EXPOSE ${PORT_CLIENT}
 
 # Start the server
-CMD ["serve", "-s", "dist", "-l", "${PORT_CLIENT}"]
+# CMD ["serve", "-s", "dist"]
