@@ -32,10 +32,6 @@ services:
              fi"
     networks:
       - superseed-network
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`${API_DOMAIN}`)
-      - traefik.http.services.api.loadbalancer.server.port=${PORT_API}
 
   client:
     container_name: superpredict-client
@@ -52,10 +48,6 @@ services:
       - superseed-network
     depends_on:
       - api
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.client.rule=Host(`${CLIENT_DOMAIN}`)
-      - traefik.http.services.client.loadbalancer.server.port=${PORT_CLIENT}
 
 networks:
   superseed-network:
