@@ -29,7 +29,8 @@ services:
     restart: unless-stopped
     ports:
       - ${PORT}:${PORT_CLIENT}
-    command: serve -s dist/client
+    # command: serve -s dist/client
+    command: npx nx run client:serve:production
     environment:
       - NODE_ENV=production
       - PORT=${PORT_CLIENT}
