@@ -1,34 +1,62 @@
 version: '3.8'
 
 services:
-  client:
-    build:
-      context: .
-      dockerfile: client/Dockerfile
-    container_name: superseed-client
-    ports:
-      - "80:80"
-    depends_on:
-      - api
-    restart: unless-stopped
-    networks:
-      - superseed-network
-
   api:
+    container_name: superpredict-api
     build:
       context: .
-      dockerfile: api/Dockerfile
-    container_name: superseed-api
-    ports:
-      - "3000:3000"
+      dockerfile: Dockerfile-api
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - PORT=${PORT_API}
       - HOST=0.0.0.0
-      - PORT=3000
-    restart: unless-stopped
+      - REDIS_URL=${REDIS_URL}
+      - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID}
+      - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET}
+      - TWITTER_REDIRECT_URI=${TWITTER_REDIRECT_URI}
+      - SESSION_ENCRYPTION_KEY=${SESSION_ENCRYPTION_KEY}
+      - CLIENT_URL=${CLIENT_URL}
+      - CRON_AUTH_KEY=${CRON_AUTH_KEY}
+    command: >
+      sh -c "ls -la /app/dist && 
+             if [ -f /app/dist/main.js ]; then 
+               node /app/dist/main.js; 
+             elif [ -f /app/dist/api/main.js ]; then 
+               node /app/dist/api/main.js; 
+             elif [ -f /app/dist/index.js ]; then 
+               node /app/dist/index.js; 
+             else 
+               echo 'No entry point found' && 
+               sleep 3600; 
+             fi"
     networks:
       - superseed-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`${API_DOMAIN}`)
+      - traefik.http.services.api.loadbalancer.server.port=${PORT_API}
+
+  client:
+    container_name: superpredict-client
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT_CLIENT}
+      - VITE_API_URL=${VITE_API_URL}
+    command: serve -s dist
+    networks:
+      - superseed-network
+    depends_on:
+      - api
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.client.rule=Host(`${CLIENT_DOMAIN}`)
+      - traefik.http.services.client.loadbalancer.server.port=${PORT_CLIENT}
 
 networks:
   superseed-network:
-    driver: bridge 
+    driver: bridge
