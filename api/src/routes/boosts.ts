@@ -49,14 +49,20 @@ boosts.post('/use', async (c) => {
       return c.json({ success: false, error: 'Missing required parameters' }, 400);
     }
     
+    // Log the request for debugging
+    console.log(`Boost use request from user ${user.id}: type=${type}, level=${level || 'N/A'}`);
+    
     const result = await BoostService.useBoost(user.id, type, level);
+    
+    // Log the result for debugging
+    console.log(`Boost use result: ${JSON.stringify(result)}`);
     
     if (!result.success) {
       return c.json({ success: false, error: result.error }, 400);
     }
     
     // If it's an action boost with a reward, include it in the response
-    if (result.reward) {
+    if (result.reward !== undefined) {
       return c.json({ 
         success: true, 
         data: { 

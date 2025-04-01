@@ -29,7 +29,7 @@ interface UserContextType {
   logout: () => void;
   fetchUser: () => Promise<void>;
   buyBoost: (boostType: string, level: number) => Promise<{success: boolean; error?: string}>;
-  useBoost: (boostType: string, level?: number) => Promise<{success: boolean; error?: string}>;
+  useBoost: (boostType: string, level?: number) => Promise<{success: boolean; error?: string; reward?: number}>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -119,7 +119,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Use a boost
-  const useBoost = async (boostType: string, level?: number): Promise<{success: boolean; error?: string}> => {
+  const useBoost = async (boostType: string, level?: number): Promise<{success: boolean; error?: string; reward?: number}> => {
     try {
       const response = await axios.post(`${BOOST_URL}/use`, {
         type: boostType,
@@ -128,6 +128,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (response.data.success) {
         await fetchUser(); // Refresh user data
+        
+        // If there's reward data, include it in the response
+        if (response.data.data && response.data.data.reward) {
+          return { 
+            success: true,
+            reward: response.data.data.reward
+          };
+        }
+        
         return { success: true };
       }
       return { success: false, error: response.data.error || 'Failed to use boost' };

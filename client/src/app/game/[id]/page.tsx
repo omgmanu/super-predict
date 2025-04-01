@@ -317,7 +317,7 @@ export default function GamePage() {
 
 function LoadingState() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-14">
       <Card className="w-full max-w-2xl mx-auto bg-slate-50">
         <CardHeader>
           <CardTitle>
@@ -345,7 +345,7 @@ function ErrorState({ error }: { error: string }) {
   const navigate = useNavigate();
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-14">
       <Card className="w-full max-w-2xl mx-auto bg-slate-50">
         <CardHeader>
           <CardTitle className="flex items-center text-red-500">
@@ -383,7 +383,7 @@ function PendingGameState({
     null;
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-14">
       <Card className="w-full max-w-2xl mx-auto bg-slate-50">
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -506,7 +506,7 @@ function SettledGameState({ game }: { game: Game }) {
   const navigate = useNavigate();
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-14">
       <Card className="w-full max-w-2xl mx-auto border-t-4 border-t-primary bg-slate-50">
         <CardHeader>
           <div className="flex justify-between items-center">

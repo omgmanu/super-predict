@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../context/UserContext';
 import {
   Card,
@@ -11,13 +11,9 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { formatDistance } from 'date-fns';
 import {
-  Hourglass,
-  Timer,
   Rocket,
   CheckCircle,
-  XCircle,
   Twitter,
-  Wallet,
   Repeat,
   HandCoins,
   Bean,
@@ -110,10 +106,27 @@ const BOOSTS = {
 };
 
 export default function GameBoosts() {
-  const { user, buyBoost, useBoost: activateBoost } = useUserContext();
+  const {
+    user,
+    buyBoost,
+    useBoost: activateBoost,
+    login,
+    fetchUser,
+  } = useUserContext();
   const [loadingBoost, setLoadingBoost] = useState<string | null>(null);
   const { toast } = useToast();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [cooldownRefreshKey, setCooldownRefreshKey] = useState(0);
+
+  // Refresh cooldown timers periodically
+  useEffect(() => {
+    // Update cooldown timers every minute
+    const interval = setInterval(() => {
+      setCooldownRefreshKey((prev) => prev + 1);
+    }, 60000); // 1 minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (!user) return null;
 
@@ -211,63 +224,149 @@ export default function GameBoosts() {
     }
   };
 
-  // Social media links for action boosts
+  // Social media links
   const socialLinks = {
-    followX: "https://x.com/superseedxyz",
-    rtPost: "https://x.com/xJesCR/status/1905929113191297124"
+    followX: 'https://twitter.com/superseedxyz',
+    rtPost: 'https://x.com/superseedxyz/status/1786800022493675934',
   };
 
-  const handleAction = async (boostType: string) => {
+  const getSocialActionDescription = (boostType: string) => {
+    if (boostType === 'followX') {
+      return 'Make sure to follow @superseedxyz on X (Twitter) to earn points.';
+    } else if (boostType === 'rtPost') {
+      return 'Make sure to retweet the post to earn points.';
+    }
+    return '';
+  };
+
+  const handleAction = async (boostType: string, level?: number) => {
     // If it's a social media action, open the link in a new tab
     if (boostType === 'followX' || boostType === 'rtPost') {
       setActionLoading(boostType);
-      
+
       // Open link in new tab
       const link = socialLinks[boostType as keyof typeof socialLinks];
       window.open(link, '_blank');
-      
+
+      // Show instruction tooltip
+      toast({
+        title: 'Action Required',
+        description: getSocialActionDescription(boostType),
+        variant: 'default',
+      });
+
       // After a short delay, try to claim the boost
-      // This gives the user time to interact with the X/Twitter page
       setTimeout(async () => {
         try {
+          // Try to activate the boost
           const response = await activateBoost(boostType);
+          console.log('Social media boost response:', response);
+
           if (response.success) {
+            // Get the reward amount from either the response or fallback to the predefined values
+            const reward =
+              response.reward ||
+              (boostType === 'followX'
+                ? 500
+                : boostType === 'rtPost'
+                ? 800
+                : 0);
+
             toast({
               title: 'Success!',
-              description: `Successfully earned points!`,
+              description: `Successfully earned ${reward} points!`,
               variant: 'default',
             });
-            fetchUserBoosts();
+          } else if (response.error === 'Unauthorized') {
+            // Handle authentication error specifically
+            toast({
+              title: 'Authentication Required',
+              description: 'Please log in to earn points',
+              variant: 'destructive',
+            });
+            // Redirect to login after a short delay
+            setTimeout(() => {
+              login(); // Use the login function from UserContext
+            }, 1500);
+          } else if (response.error === 'Boost already used') {
+            toast({
+              title: 'Already Completed',
+              description: 'You have already earned points for this action',
+              variant: 'default',
+            });
           } else {
             toast({
               title: 'Error',
-              description: response.error || 'Failed to use boost',
+              description: response.error || 'Failed to earn points',
               variant: 'destructive',
             });
           }
         } catch (error) {
-          console.error(error);
+          console.error('Error activating social boost:', error);
           toast({
             title: 'Error',
-            description: 'Failed to use boost',
+            description: 'Failed to earn points. Please try again.',
             variant: 'destructive',
           });
         } finally {
           setActionLoading(null);
         }
-      }, 2500);
+      }, 3000); // Longer delay to give user time to interact with social media
     } else {
       // Regular action boost
       try {
-        setActionLoading(boostType);
-        const response = await activateBoost(boostType);
+        // Set action loading with level information if available
+        const actionId = level ? `${boostType}-${level}` : boostType;
+        setActionLoading(actionId);
+
+        const response = await activateBoost(boostType, level);
         if (response.success) {
+          let message;
+
+          if (boostType === 'superDistributor' && level) {
+            message = `Successfully distributed ${
+              level * 100
+            } coins to all players!`;
+
+            toast({
+              title: 'Success!',
+              description: message,
+              variant: 'default',
+            });
+
+            // For the distributor boost, update the UI without a full refresh
+            // by fetching fresh user data
+            await fetchUser();
+
+            // Update the cooldown UI state without a refresh
+            setActionLoading(null);
+          } else if (response.reward) {
+            message = `Successfully earned ${response.reward} points!`;
+
+            toast({
+              title: 'Success!',
+              description: message,
+              variant: 'default',
+            });
+          } else {
+            message = `Successfully completed action!`;
+
+            toast({
+              title: 'Success!',
+              description: message,
+              variant: 'default',
+            });
+          }
+        } else if (response.error === 'Unauthorized') {
+          // Handle authentication error
           toast({
-            title: 'Success!',
-            description: `Successfully earned points!`,
-            variant: 'default',
+            title: 'Authentication Required',
+            description: 'Please log in to use this boost',
+            variant: 'destructive',
           });
-          fetchUserBoosts();
+          setTimeout(() => {
+            login(); // Use the login function from UserContext
+          }, 1500);
         } else {
           toast({
             title: 'Error',
@@ -276,14 +375,16 @@ export default function GameBoosts() {
           });
         }
       } catch (error) {
-        console.error(error);
+        console.error('Error using regular boost:', error);
         toast({
           title: 'Error',
           description: 'Failed to use boost',
           variant: 'destructive',
         });
       } finally {
-        setActionLoading(null);
+        if (!boostType.includes('superDistributor')) {
+          setActionLoading(null);
+        }
       }
     }
   };
@@ -291,22 +392,22 @@ export default function GameBoosts() {
   // Render a Super Distributor boost item
   const renderDistributorBoost = (boost: any) => {
     const isUnlocked = hasBoost('superDistributor', boost.level);
+    const cooldown = isOnCooldown('superDistributor', boost.level);
     const canBuy =
       user.points >= boost.cost &&
       hasPreviousLevel('superDistributor', boost.level);
-    const cooldown = isOnCooldown('superDistributor', boost.level);
-    
+
     // Get distributor stats
     const getDistributorUsageCount = () => {
       if (!user.boosts) return 0;
-      
+
       const boostData = user.boosts.find(
-        b => b.type === 'superDistributor' && b.level === boost.level
+        (b) => b.type === 'superDistributor' && b.level === boost.level
       );
-      
+
       return boostData?.usageCount || 0;
     };
-    
+
     const usageCount = getDistributorUsageCount();
 
     return (
@@ -355,12 +456,11 @@ export default function GameBoosts() {
               size="sm"
               className="bg-green-500 hover:bg-green-600"
               disabled={
-                cooldown ||
-                loadingBoost === `use-superDistributor-${boost.level}`
+                cooldown || actionLoading === `superDistributor-${boost.level}`
               }
-              onClick={() => handleAction('superDistributor')}
+              onClick={() => handleAction('superDistributor', boost.level)}
             >
-              {loadingBoost === `use-superDistributor-${boost.level}`
+              {actionLoading === `superDistributor-${boost.level}`
                 ? 'Distributing...'
                 : cooldown
                 ? `Cooldown: ${getCooldownRemaining(
@@ -459,31 +559,38 @@ export default function GameBoosts() {
   const renderActionBoost = (name: string, boostDetails: any) => {
     // Check if the boost is available, default to true if not specified
     const isAvailable = boostDetails.available !== false;
-    
+
     return (
       <div
         key={name}
         className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-md bg-slate-50"
       >
         <div className="flex items-start gap-3">
-          <div className="bg-main text-black p-3 rounded-md">{boostDetails.icon}</div>
+          <div className="bg-main text-black p-3 rounded-md">
+            {boostDetails.icon}
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <h4 className="font-medium">{boostDetails.name}</h4>
               {!isAvailable && (
-                <Badge variant="default" className="text-xs bg-gray-300 text-gray-700">
+                <Badge
+                  variant="default"
+                  className="text-xs bg-gray-300 text-gray-700"
+                >
                   Coming Soon
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">{boostDetails.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {boostDetails.description}
+            </p>
           </div>
         </div>
         <div className="mt-3 sm:mt-0">
           <Button
             variant="default"
             size="sm"
-            className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
+            className={!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}
             onClick={() => isAvailable && handleAction(name)}
             disabled={!isAvailable || actionLoading === name || hasBoost(name)}
           >
@@ -494,8 +601,10 @@ export default function GameBoosts() {
                 <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                 <span>Processing...</span>
               </div>
+            ) : isAvailable ? (
+              `Earn ${boostDetails.reward} points`
             ) : (
-              isAvailable ? `Earn ${boostDetails.reward} points` : "Coming Soon"
+              'Coming Soon'
             )}
           </Button>
         </div>

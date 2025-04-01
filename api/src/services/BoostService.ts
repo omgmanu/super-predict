@@ -199,6 +199,8 @@ export class BoostService {
   private static async useActionBoost(userId: string, type: string): Promise<{ success: boolean; error?: string; reward?: number; }> {
     // Get boost configuration
     const config = this.getBoostConfig(type);
+    console.log(`[BoostService] useActionBoost called for user ${userId}, boost type ${type}`);
+    console.log(`[BoostService] config:`, config);
       
     if (!config) {
       return { success: false, error: 'Invalid boost type' };
@@ -211,12 +213,16 @@ export class BoostService {
     
     // Check if user exists
     const user = await UserDB.getUser(userId);
+    console.log(`[BoostService] user:`, user ? { id: user.id, points: user.points } : null);
+    
     if (!user) {
       return { success: false, error: 'User not found' };
     }
     
     // Check if user already has this boost
     const hasBoost = await UserDB.hasBoost(userId, type);
+    console.log(`[BoostService] hasBoost:`, hasBoost);
+    
     if (hasBoost) {
       return { success: false, error: 'Boost already used' };
     }
@@ -239,15 +245,29 @@ export class BoostService {
     
     // Add the boost to the user
     const addedBoost = await UserDB.addBoost(userId, boost);
+    console.log(`[BoostService] addedBoost:`, addedBoost);
+    
     if (!addedBoost) {
       return { success: false, error: 'Failed to add boost' };
     }
     
     // Award points to the user
     const reward = typeof config.reward === 'number' ? config.reward : 0;
+    console.log(`[BoostService] reward to add:`, reward);
+    
     if (reward > 0) {
-      await UserDB.addPoints(userId, reward);
+      const pointsAdded = await UserDB.addPoints(userId, reward);
+      console.log(`[BoostService] pointsAdded result:`, pointsAdded);
+      
+      if (!pointsAdded) {
+        console.error(`[BoostService] Failed to add points to user ${userId}`);
+        // Still return success but log the error
+      }
     }
+    
+    // Get updated user to verify points were added
+    const updatedUser = await UserDB.getUser(userId);
+    console.log(`[BoostService] updated user:`, updatedUser ? { id: updatedUser.id, points: updatedUser.points } : null);
     
     return { success: true, reward };
   }

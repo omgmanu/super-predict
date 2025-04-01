@@ -47,13 +47,13 @@ export function About() {
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-border shadow-shadow">
+        <Card className="border-2 border-border shadow-shadow bg-slate-50">
           <CardHeader className="bg-main border-b-2 border-border">
             <CardTitle className="font-heading text-2xl">
               Key Features
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 bg-slate-50 pb-8">
+          <CardContent className="p-6 pb-8">
             <ul className="space-y-4">
               <li className="flex items-start">
                 <div className="mr-4 mt-1 bg-main rounded-full p-1">
