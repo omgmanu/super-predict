@@ -227,7 +227,7 @@ export default function GameBoosts() {
   // Social media links
   const socialLinks = {
     followX: 'https://twitter.com/superseedxyz',
-    rtPost: 'https://x.com/superseedxyz/status/1786800022493675934',
+    rtPost: 'https://x.com/ment0san/status/1907127259569258985',
   };
 
   const getSocialActionDescription = (boostType: string) => {

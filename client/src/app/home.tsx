@@ -214,7 +214,7 @@ export function Home() {
       </div>
 
       {/* FAQ Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16" id="faq">
         <h2 className="text-3xl font-heading mb-8 text-center">
           Frequently Asked Questions
         </h2>
