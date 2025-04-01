@@ -6,9 +6,9 @@ const automator = new Hono();
 
 // Middleware to verify cron authentication
 const verifyCronAuth = async (c: any, next: any) => {
-  const cronAuthHeader = c.req.header('cron-auth');
+  const authKey = c.req.query('authKey');
   
-  if (!cronAuthHeader || cronAuthHeader !== env.CRON_AUTH_KEY) {
+  if (!authKey || authKey !== env.CRON_AUTH_KEY) {
     return c.json({ success: false, error: 'Unauthorized' }, 401);
   }
   
@@ -16,7 +16,7 @@ const verifyCronAuth = async (c: any, next: any) => {
 };
 
 // Run automator for all users with active super automator boosts
-automator.post('/run', verifyCronAuth, async (c) => {
+automator.get('/run', verifyCronAuth, async (c) => {
   try {
     const result = await AutomatorService.runAutomator();
     

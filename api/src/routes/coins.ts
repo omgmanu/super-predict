@@ -1,16 +1,14 @@
 import { Hono } from 'hono';
 import { env } from '../utils/env';
-import { UserDB } from '../db/UserDB';
-import { requireAuth } from '../utils/auth';
 import { AppService } from '../services/AppService';
 
 const coins = new Hono();
 
 // Middleware to verify cron authentication
 const verifyCronAuth = async (c: any, next: any) => {
-  const cronAuthHeader = c.req.header('cron-auth');
+  const authKey = c.req.query('authKey');
   
-  if (!cronAuthHeader || cronAuthHeader !== env.CRON_AUTH_KEY) {
+  if (!authKey || authKey !== env.CRON_AUTH_KEY) {
     return c.json({ success: false, error: 'Unauthorized' }, 401);
   }
   
@@ -18,7 +16,7 @@ const verifyCronAuth = async (c: any, next: any) => {
 };
 
 // Distribute coins to all users
-coins.post('/distribute', verifyCronAuth, async (c) => {
+coins.get('/distribute', verifyCronAuth, async (c) => {
   try {
     const redis = AppService.getInstance().getRedisClient();
     const userKeys = await redis.keys('user:*');
